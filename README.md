@@ -416,3 +416,6 @@ result = calculator.calculate params
 
 - [www.edostavka.ru](http://www.edostavka.ru/) - Оффициальный сайт СДЭК.
 - [www.edostavka.ru/clients/integrator.html](http://www.edostavka.ru/clients/integrator.html/) - Документация к API.
+
+
+Разработано при поддержке интернет-магазина настольных игр "[Танго и Кэш](http://tango-cash.ru/)"
