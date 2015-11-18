@@ -414,7 +414,7 @@ result = calculator.calculate params
 
 ## Ссылки
 
-- [www.edostavka.ru](http://www.edostavka.ru/) - Оффициальный сайт СДЭК.
+- [www.edostavka.ru](http://www.edostavka.ru/) - Сайт СДЭК.
 - [www.edostavka.ru/clients/integrator.html](http://www.edostavka.ru/clients/integrator.html/) - Документация к API.
 
 
