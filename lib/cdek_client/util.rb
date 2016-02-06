@@ -12,8 +12,8 @@ module CdekClient
 
     def hash_to_xml(hash)
       root_key = hash.keys.first
-      Nokogiri::XML::Builder.new do |xml|
-        process_hash_to_xml(root_key, hash[root_key], xml)          
+      Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
+        process_hash_to_xml(root_key, hash[root_key], xml)
       end.to_xml
     end
 
@@ -42,7 +42,7 @@ module CdekClient
       elsif keypath.length == 1
         return hash[keypath[0]]
       else
-        return hash_value_at_keypath hash[keypath[0]], keypath[1..-1]        
+        return hash_value_at_keypath hash[keypath[0]], keypath[1..-1]
       end
     end
 
@@ -57,7 +57,7 @@ module CdekClient
     end
 
     def blank?(value)
-      value.nil? || 
+      value.nil? ||
       (value.is_a?(String) && value.strip == '') ||
       ((value.is_a?(Array) || (value.is_a?(Hash))) && value.empty?)
     end
@@ -65,7 +65,7 @@ module CdekClient
     private
 
     def xml_node_to_hash(node)
-      # If we are at the root of the document, start the hash 
+      # If we are at the root of the document, start the hash
       if node.element?
         result_hash = {}
         if node.attributes != {}
@@ -120,6 +120,6 @@ module CdekClient
         end
       end
     end
-    
+
   end
 end
