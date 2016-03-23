@@ -8,9 +8,12 @@ require 'cdek_client/util'
 module CdekClient
   class Client < AbstractClient
 
-    def initialize(account = nil, password = nil)
+    DEFAULT_TIMEOUT = 1
+
+    def initialize(account = nil, password = nil, timeout = DEFAULT_TIMEOUT)
       @account = account
       @password = password
+      @timeout = timeout
     end
 
     def pickup_points(params = {})
@@ -249,7 +252,7 @@ module CdekClient
     end
 
     def calculator
-      @calculator ||= CalculatorClient.new @account, @password
+      @calculator ||= CalculatorClient.new @account, @password, @timeout
     end
 
   end

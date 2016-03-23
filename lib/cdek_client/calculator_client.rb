@@ -9,9 +9,10 @@ module CdekClient
   
   class CalculatorClient < AbstractClient
 
-    def initialize(account = nil, password = nil)
+    def initialize(account = nil, password = nil, timeout = nil)
       @account = account
       @password = password
+      @timeout = timeout
     end
 
     def calculate(params)
