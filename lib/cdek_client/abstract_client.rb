@@ -84,7 +84,7 @@ module CdekClient
       end
     end
 
-    def raw_request(url, retry_url, method, request_params, params)
+    def raw_request(url, method, request_params, params)
       if !Util.blank?(params)
         if method == :post
           request_params = request_params.merge body: params
@@ -103,18 +103,10 @@ module CdekClient
           raise CdekClient::ResponseError.new response.code, response.message
         end
       rescue CdekClient::ResponseError, HTTParty::ResponseError => e
-        if Util.blank? retry_url
-          error = e.is_a?(CdekClient::ResponseError) ? e : (CdekClient::ResponseError.new e.response.code, e.response.message)
-          return CdekClient::Result.new response, response.body, [error]
-        else
-          return raw_request url, nil, method, request_params, nil
-        end
+        error = e.is_a?(CdekClient::ResponseError) ? e : (CdekClient::ResponseError.new e.response.code, e.response.message)
+        return CdekClient::Result.new response, response.body, [error]
       rescue Timeout::Error, Errno::ETIMEDOUT => e
-        if Util.blank? retry_url
-          return CdekClient::Result.new response, response.body, [e]
-        else
-          return raw_request url, nil, method, request_params, nil
-        end
+        return CdekClient::Result.new response, response.body, [e]
       end
     end
 
