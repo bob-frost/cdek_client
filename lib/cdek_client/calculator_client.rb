@@ -9,9 +9,10 @@ module CdekClient
   
   class CalculatorClient < AbstractClient
 
-    def initialize(account = nil, password = nil)
+    def initialize(account = nil, password = nil, timeout = nil)
       @account = account
       @password = password
+      @timeout = timeout
     end
 
     def calculate(params)
@@ -33,7 +34,7 @@ module CdekClient
           secure: CdekClient.generate_secure(formatted_date_execute, @password)
         })
       end
-      result = request url_for(:calculator_primary, :calculate), url_for(:calculator_secondary, :calculate), :post, params
+      result = request url_for(:calculator, :calculate), :post, params
       if result.errors.any?
         result.set_data({})
       elsif result.data.has_key?(:error)
@@ -51,12 +52,12 @@ module CdekClient
 
     private
 
-    def request(url, retry_url, method, params = {})
+    def request(url, method, params = {})
       params = params.to_json
       request_params = { 
         headers: { 'Content-Type' => 'application/json' }
       }
-      result = raw_request url, retry_url, method, {}, params
+      result = raw_request url, method, {}, params
       if !Util.blank? result.data
         data = Util.deep_symbolize_keys JSON.parse(result.data)
         result.set_data data

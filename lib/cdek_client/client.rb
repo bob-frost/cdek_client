@@ -8,14 +8,17 @@ require 'cdek_client/util'
 module CdekClient
   class Client < AbstractClient
 
-    def initialize(account = nil, password = nil)
+    DEFAULT_TIMEOUT = 1
+
+    def initialize(account = nil, password = nil, timeout = DEFAULT_TIMEOUT)
       @account = account
       @password = password
+      @timeout = timeout
     end
 
     def pickup_points(params = {})
       params = normalize_request_data params
-      result = request url_for(:primary, :pickup_points), url_for(:secondary, :pickup_points), :get, params
+      result = request url_for(:primary, :pickup_points), :get, params
       if result.errors.any?
         result.set_data []
         return result
@@ -35,7 +38,7 @@ module CdekClient
     def order_statuses(params = {})
       params = normalize_request_data params
       params = { StatusReport: params }
-      result = authorized_request url_for(:primary, :order_statuses), url_for(:secondary, :order_statuses), params
+      result = authorized_request url_for(:primary, :order_statuses), params
       if result.errors.any?
         result.set_data []
         return result
@@ -55,7 +58,7 @@ module CdekClient
     def order_infos(params)
       params = normalize_request_data params
       params = { InfoRequest: params }
-      result = authorized_request url_for(:primary, :order_infos), url_for(:secondary, :order_infos), params
+      result = authorized_request url_for(:primary, :order_infos), params
       if result.errors.any?
         result.set_data []
         return result
@@ -80,7 +83,7 @@ module CdekClient
       params = normalize_request_data params
       params[:OrderCount] = params[:Order].is_a?(Array) ? params[:Order].length : 1
       params = { DeliveryRequest: params }
-      result = authorized_request url_for(:primary, :new_orders), url_for(:secondary, :new_orders), params
+      result = authorized_request url_for(:primary, :new_orders), params
       if result.errors.any?
         result.set_data []
         return result
@@ -111,7 +114,7 @@ module CdekClient
       params = normalize_request_data params
       params[:OrderCount] = params[:Order].is_a?(Array) ? params[:Order].length : 1
       params = { ScheduleRequest: params }
-      result = authorized_request url_for(:primary, :new_schedule), url_for(:secondary, :new_schedule), params
+      result = authorized_request url_for(:primary, :new_schedule), params
       if result.errors.any?
         result.set_data []
         return result
@@ -142,7 +145,7 @@ module CdekClient
       params = normalize_request_data params
       params[:CallCount] = params[:Call].is_a?(Array) ? params[:Call].length : 1
       params = { CallCourier: params }
-      result = authorized_request url_for(:primary, :call_courier), url_for(:secondary, :call_courier), params
+      result = authorized_request url_for(:primary, :call_courier), params
       if result.errors.any?
         result.set_data []
         return result
@@ -174,7 +177,7 @@ module CdekClient
       params = normalize_request_data params
       params[:OrderCount] = params[:Order].is_a?(Array) ? params[:Order].length : 1
       params = { DeleteRequest: params }
-      result = authorized_request url_for(:primary, :delete_orders), url_for(:secondary, :delete_orders), params
+      result = authorized_request url_for(:primary, :delete_orders), params
       # Currently API returns '500 - internal server error' for some invalid requests here.
       # Continue processing data if it is such error but response data is present 
       if result.errors.any? && (result.errors.length > 1 || result.errors[0].code != 500 || !result.data.is_a?(Hash) || !result.data.has_key?(:response))
@@ -200,7 +203,7 @@ module CdekClient
       params = normalize_request_data params
       params[:OrderCount] = params[:Order].is_a?(Array) ? params[:Order].length : 1
       params = build_authorized_request_params OrdersPrint: params
-      result = raw_request url_for(:primary, :orders_print), url_for(:secondary, :orders_print), :post, {}, params
+      result = raw_request url_for(:primary, :orders_print), :post, {}, params
       errors_hash = Util.xml_to_hash(result.data) rescue nil
       if !errors_hash.nil? && errors_hash.has_key?(:response)
         [:OrdersPrint, :Order].each do |key|
@@ -221,13 +224,13 @@ module CdekClient
 
     private
 
-    def authorized_request(url, retry_url, params = {})
+    def authorized_request(url, params = {})
       params = build_authorized_request_params params
-      request url, retry_url, :post, params
+      request url, :post, params
     end
 
-    def request(url, retry_url, method, params = {})
-      result = raw_request url, retry_url, method, {}, params
+    def request(url, method, params = {})
+      result = raw_request url, method, {}, params
       if !Util.blank? result.data
         result.set_data Util.xml_to_hash(result.data)
       end
@@ -249,7 +252,7 @@ module CdekClient
     end
 
     def calculator
-      @calculator ||= CalculatorClient.new @account, @password
+      @calculator ||= CalculatorClient.new @account, @password, @timeout
     end
 
   end
